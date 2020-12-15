@@ -731,7 +731,7 @@ Vue.component('custom-main', {
   mixins: [mixin],
   data: function() {
     return {      
-      tytul: "The Lord of the Rings: Journey to Mordor electronic board (grzejan@gmail.com).",
+      tytul: "The Lord of the Rings: Journey to Mordor electronic board (grzejan@gmail.com)",
       w: 400,
       h: 600,
       czyCookieMsg: null,
