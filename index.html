@@ -1,13 +1,66 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>grzejan site</title>
-  </head>
-  <body>
-    <h1>grzejan@gmail.com</h1>
-    <h2>Web apki</h2>
-    <p><a href="https://grzejan.github.io/gradescalc/">Kalkulator średniej ważonej ocen</a></p>  
-    <p><a href="https://grzejan.github.io/lotrmordorboard/">Władca pierścieni: Wyprawa do Mordoru - elektroniczna plansza</a></p>  
-  </body>
-</html> 
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<body>
+
+
+<!-- Header -->
+<header class="w3-container w3-theme w3-padding" id="myHeader">
+  <div class="w3-center">
+  <h1 class="w3-xxxlarge w3-animate-bottom">grzejan site</h1>
+  <div class="w3-xlarge w3-section">
+    <script>
+      var uzytkownik = 'grzejan';
+      var domena = 'gmail.com';
+      var opis = '<i class="fa fa-envelope w3-hover-opacity"></i>';
+      document.write('<a hr' + 'ef="mai' + 'lto:' + uzytkownik + '\x40' + domena +  '">');
+      if (opis) document.write(opis + '<'+'/a>');
+      else document.write(uzytkownik + '\x40' + domena + '<'+'/a>');
+    </script>    
+    <a href="https://www.linkedin.com/in/grzegorz-jankowski-0909ba13a"><i class="fa fa-linkedin w3-hover-opacity"></i></a>
+  </div>
+  </div>  
+</header>
+
+<!-- Content -->
+<div class="w3-row-padding w3-center w3-margin-top">
+
+  <div class="w3-half" style="">
+    <div class="w3-card w3-right" style="height:430px; width:300px; position:relative;">
+      <header class="w3-container">
+        <h3>Kalkulator średniej ważonej ocen</h3>
+      </header>
+      <div class="w3-container">
+        <i class="fa fa-calculator w3-margin-bottom w3-margin-top w3-text-theme" style="font-size:120px"></i>
+        <p>Kalkulator wyliczający średnią ważoną ocen na podstawie otrzymanych oraz hipotetycznych ocen</p>
+      </div>
+      <footer class="w3-block" style="position:absolute; bottom:0;">
+        <a class="w3-button w3-block w3-dark-grey" href="https://grzejan.github.io/gradescalc/">Uruchom</a>
+      </footer>
+    </div>
+  </div>
+
+  <div class="w3-half" style="">
+    <div class="w3-card w3-left" style="width:300px; height:430px; position:relative;">
+      <header class="w3-container">
+        <h3>LOTR: Journey to Mordor - elektroniczna plansza</h3>
+      </header>
+      <div class="w3-container">
+        <i class="fa fa-map-o w3-margin-bottom w3-margin-top w3-text-theme" style="font-size:120px"></i>
+        <p>Elektroniczna plansza do gry: Władca pierścieni: Wyprawa do Mordoru</p>
+        <p>Planszę można obsługiwać pilotami: strzałki lewo, prawo + OK</p>
+      </div>
+      <footer class="w3-block" style="position:absolute; bottom:0;">
+        <a class="w3-button w3-block w3-dark-grey" href="https://grzejan.github.io/lotrmordorboard/" >Uruchom</a>
+      </footer>
+    </div>  
+  </div>
+
+</div>
+</body>
+</html>
