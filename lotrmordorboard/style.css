@@ -1,0 +1,283 @@
+.vertical-container {
+    display: flex;
+  justify-content: center;
+}
+
+.dice:hover, .dice:focus {
+  cursor:pointer;
+  _box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.8), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  outline: none;
+  box-shadow: 0px 0px 6px 5px #D4AF37;
+}
+
+.vertical-center {
+  width: 800px;
+}
+.tab {
+  display:inline-block;
+  _border: 1px solid red;
+  height:600px;
+  width:50px;
+  position:relative;
+  cursor:pointer;
+  background:yellow;
+}
+.tabtext {
+  transform-origin: 0 100%;
+  transform: rotate(-90deg);
+  width:600px;
+  height:50px;
+  padding-top: 25%;
+  position:absolute;
+  bottom: 0px;
+  left:100%;
+  font-weight: bold;
+  font-size: 110%;
+  text-transform: uppercase;
+  text-align: center;
+}
+.circle {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    margin: 0px;
+}
+.tile {
+    position: absolute;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+}
+.tile.greenh {
+    background: green;
+    clip: rect(0px, 30px, 30px, 15px);
+    width: 30px;
+    transform: rotate(45deg);
+}
+.tile.blueh {
+    background: dodgerblue;
+    clip: rect(0px, 15px, 30px, 0px);
+    width: 30px;
+    transform: rotate(45deg);
+}
+.tile.green {
+    background: green;
+    clip: rect(0px, 30px, 15px, 15px);
+    width: 30px;
+    transform: rotate(45deg);
+}
+.tile.blue {
+    background: dodgerblue;
+    clip: rect(0px, 15px, 15px, 0px);
+    width: 30px;
+    transform: rotate(45deg);
+}
+.tile.orange {
+    background: red;
+    clip: rect(15px, 15px, 30px, 0px);
+    width: 30px;
+    transform: rotate(45deg);
+}
+.tile.yellow {
+    background: yellow;
+    clip: rect(15px,30px, 30px, 15px);
+    width: 30px;
+    transform: rotate(45deg);
+}
+
+.character {
+  cursor:pointer;
+  width:5em;
+  height:6em;
+  position: absolute;
+  display: inline-block;
+  color: black;
+  text-align: left;
+  font-weight: bold;
+}
+.characterx {
+  background-image: url("img/step_x.png");
+  background-repeat: no-repeat;
+  background-size: 20px; 
+}
+
+.step {
+  _background-color:rgba(255, 255, 0, 0.616);
+  _border-radius: 30px 0 0px 0;
+  _transform: rotate(45deg);
+  position: absolute;
+  display: inline-block;
+  cursor:pointer;
+  width: 30;
+  height: 31px;
+  _transition: width .2s, height .2s, background-size .2s;
+  _animation: zoominoutsinglefeatured 1s 3 ;
+}
+
+@keyframes zoominoutsinglefeatured {
+    0% {
+        transform: scale(1,1);
+    }
+    50% {
+        transform: scale(2.5,2.5);
+    }
+    100% {
+        transform: scale(1,1);
+    }
+}
+
+.stepsplitxx {
+  background-image: url("img/step_split_xx.png");
+  background-repeat: no-repeat;
+  background-size: 30px 31px; 
+
+}
+.stepsplitx {
+  background-image: url("img/step_split_x.png");
+  background-repeat: no-repeat;
+  background-size: 30px 31px;  
+}
+.stepsplit {
+  background-image: url("img/step_split.png");
+  background-repeat: no-repeat;
+  background-size: 30px 31px;  
+}
+.stepx {
+  background-image: url("img/step_x.png");
+  background-repeat: no-repeat;
+  background-size: 30px;  
+}
+
+.notice {
+  background-color:rgba(237, 228, 183, 0.85);
+  position: absolute;
+  _display: inline-block;
+  _text-align: center;
+  padding: 5px;
+  width: 280px;
+  top: 180px;
+  right: 10px;  
+  line-height: 70px;
+  height: 70px;
+  text-align: center;
+  font-size: 2em;
+}
+.notice p {
+  line-height: 1.4;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+.button {
+  text-align: center;
+  display:  inline-block;
+  position:absolute;
+  color: rgba(0, 0, 0, 1);
+  font-size: 1.5em;
+  _font-weight: bold;
+  cursor: pointer;
+  border-radius: 10%;
+  height: 1.5em;
+  width: 1.5em;
+}
+
+.buttonringadd {
+  background-color:rgb(255, 238, 1,0.5);
+}
+
+.buttonringadd:hover {
+  background: rgba(255, 238, 1, 0.8 );
+}
+
+.buttonnazguladd {
+  color: rgb(197, 197, 197);
+  background-color:rgba(5, 5, 5, 0.5);
+}
+
+.buttonnazguladd:hover {
+  background: rgba(5, 5, 5, 0.8 );
+}
+
+.buttonringsub, .buttonnazgulsub {
+  background-color:rgba(218, 218, 218, 0.5);
+}
+
+.buttonringsub:hover, .buttonnazgulsub:hover {
+  background: rgb(218, 218, 218, 0.8);
+}
+
+.b2 {
+width: 200px;
+height: 200px;
+overflow: hidden;
+_background-position: -450px -450px;
+_background-size: 900px;
+_background-color:yellow;
+background-image: url("img/lotrmboard.jpg");
+background-repeat: no-repeat;
+display:  inline-block;
+_margin-right: 0.9em;
+_margin-bottom: 0.7em;
+position:relative;
+}
+
+.board {
+background-color:yellow;
+overflow: auto;
+background-image: url("img/lotrmboard.jpg");
+background-repeat: no-repeat;
+background-attachment: local;
+display:  inline-block;
+_margin-right: 0.9em;
+_margin-bottom: 0.7em;
+position:relative;
+}
+
+.boardbookmark {
+  background-color:rgba(237, 228, 183, 0.85);
+  position: relative;
+  _display: inline-block;
+  _text-align: center;
+  padding: 5px;
+  width: 50px;
+  _top: 180px;
+  _right: 10px;  
+  _line-height: 70px;
+  height: 70px;
+  text-align: center;
+  _font-size: 2em;
+}
+
+.cross {
+  _background-color:yellow;
+  position:absolute;
+  display:  inline-block;
+  color: black;
+  _font-weight: bold;
+
+}
+
+#cookiemsg {
+  z-index: 1000;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(255,255,255,.9);
+  border-top: solid 1px #ccc;
+  padding: .5em;
+}
+
+.ukryty {
+  display: none;
+}
