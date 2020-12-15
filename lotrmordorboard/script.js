@@ -1058,9 +1058,9 @@ Vue.component('custom-main', {
   mounted() { 
     var w = this.getCookie('boardw');
     if (w) {
-      //this.w = JSON.parse(w);
+      this.w = JSON.parse(w);
     } else {
-      //this.w = 600;
+      this.w = 600;
     }
     if (this.getCookie('boardcookiemsg')) {
       this.czyCookieMsg = false;
