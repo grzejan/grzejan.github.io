@@ -1,10 +1,46 @@
 var mixin = {
   data: function () {
     return {
-      tytul: "dummy"
+      tytul: "dummy",      
+      zestawy: [   
+      ],     
     }
   },
   methods: {
+    generateId: function () {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    },
+    setZestawyCookie: function (zestawy, numerZestawu) { 
+      var zestawytmp = zestawy.map(zestawytmpmap);
+      this.setCookie('zestawy', JSON.stringify(zestawytmp), 180);
+      
+      if (numerZestawu>=0) {
+        var ocenycookie = JSON.stringify(zestawy[numerZestawu].oceny);
+        this.setCookie('oceny-zestaw-'+numerZestawu, ocenycookie, 180);
+        ocenycookie = JSON.stringify(zestawy[numerZestawu].ocenyhipotetyczne);
+        this.setCookie('ocenyhipotetyczne-zestaw-'+numerZestawu, ocenycookie, 180);
+      };
+
+      function zestawytmpmap(item) {
+        return {kod: item.kod, nazwa: item.nazwa, visible: item.visible, oceny:[], ocenyhipotetyczne: []}
+      };
+
+    },
+    getZestawy: function () {
+      var zestawycookie = this.getCookie('zestawy');
+      var oceny;
+      var ocenyhip;
+      if (zestawycookie) {
+        this.zestawy = JSON.parse(zestawycookie);
+        for(x in this.zestawy) {
+          ocenyhip = this.getCookie('ocenyhipotetyczne-zestaw-'+x);
+          oceny = this.getCookie('oceny-zestaw-'+x);
+          if (oceny) {
+            this.zestawy[x].oceny=JSON.parse(oceny);
+          };
+        };
+      }
+    },
     setCookie: function (cname, cvalue, exdays) {
       var d = new Date();
       d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -31,8 +67,8 @@ var mixin = {
 
 Vue.component('ocena-input', {
   props: {
-    oceny: Array,
-    ocenyhipotetyczne: Array,
+    zestawyOcen: Array,
+    aktywnyZestaw: Number,
     wagiinput: Array,
     ocenyinput: Array
   },
@@ -147,10 +183,10 @@ Vue.component('ocena-input', {
     },
     addOcena: function (ocenalabel, wagalabel, ocena, waga, czyLiczyc, czyocenyfaktyczne) {
       let i = Date.now().toString(36) + Math.random().toString(36).substr(2);
-      if (czyocenyfaktyczne) {
-      this.oceny.push({ id: i, wartosclabel: ocenalabel, wagalabel: wagalabel, wartosc: ocena, waga: waga, czyLiczyc: czyLiczyc });
+      if (czyocenyfaktyczne) {        
+        this.zestawyOcen[this.aktywnyZestaw].oceny.push({ id: i, wartosclabel: ocenalabel, wagalabel: wagalabel, wartosc: ocena, waga: waga, czyLiczyc: czyLiczyc });
       } else {
-        this.ocenyhipotetyczne.push({ id: i, wartosclabel: ocenalabel, wagalabel: wagalabel, wartosc: ocena, waga: waga, czyLiczyc: czyLiczyc });
+        this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne.push({ id: i, wartosclabel: ocenalabel, wagalabel: wagalabel, wartosc: ocena, waga: waga, czyLiczyc: czyLiczyc });
       }
     },
     checkFormValidity() {
@@ -185,7 +221,7 @@ Vue.component('ocena-input', {
       var liczbaocen = this.liczbaoceninput;
       const docelowasrednia = this.sredniainput.replace(',', '.');      
       do {
-        var wOcene=wyliczOcene(this.oceny,this.ocenyhipotetyczne,docelowasrednia,liczbaocen,this.wagainput.value);
+        var wOcene=wyliczOcene(this.zestawyOcen[this.aktywnyZestaw].oceny,this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne,docelowasrednia,liczbaocen,this.wagainput.value);
         var ocenawyliczona = wOcene.wyliczona;
         console.log(wOcene);
         var ocenawyznaczona = wyznaczOcene(this.ocenyinput,ocenawyliczona);
@@ -217,34 +253,34 @@ Vue.component('ocena-input', {
       if (liczbaocentmp==1) {
         console.log("--case 1");
         do {
-          var ocenawyliczona=wyliczOcene(this.oceny,this.ocenyhipotetyczne,docelowasrednia,liczbaocentmp,this.wagainput.value).wyliczona;
+          var ocenawyliczona=wyliczOcene(this.zestawyOcen[this.aktywnyZestaw].oceny,this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne,docelowasrednia,liczbaocentmp,this.wagainput.value).wyliczona;
           var ocenawyznaczona = wyznaczOcene(this.ocenyinput,ocenawyliczona);
           var i = Date.now().toString(36) + Math.random().toString(36).substr(2);
-          this.ocenyhipotetyczne.push({ id: i, wartosclabel: ocenawyznaczona.label, wagalabel: this.wagainput.label, wartosc: ocenawyznaczona.value, waga: this.wagainput.value, czyLiczyc: true });
+          this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne.push({ id: i, wartosclabel: ocenawyznaczona.label, wagalabel: this.wagainput.label, wartosc: ocenawyznaczona.value, waga: this.wagainput.value, czyLiczyc: true });
         }while(--liczbaocentmp);
       }else if(liczbaocentmp==2){
         console.log("--case 2");
-        var brakuje=wyliczOcene(this.oceny,this.ocenyhipotetyczne,docelowasrednia,2,this.wagainput.value).brakuje;
+        var brakuje=wyliczOcene(this.zestawyOcen[this.aktywnyZestaw].oceny,this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne,docelowasrednia,2,this.wagainput.value).brakuje;
         var brakujaceoceny = dopasuj2oceny (this.ocenyinput,brakuje);
         var i = Date.now().toString(36) + Math.random().toString(36).substr(2);
-        this.ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena1.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena1.value, waga: this.wagainput.value, czyLiczyc: true });
+        this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena1.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena1.value, waga: this.wagainput.value, czyLiczyc: true });
         i = Date.now().toString(36) + Math.random().toString(36).substr(2);
-        this.ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena2.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena2.value, waga: this.wagainput.value, czyLiczyc: true });
+        this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena2.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena2.value, waga: this.wagainput.value, czyLiczyc: true });
       }else{
         console.log("--case def");
         liczbaocentmp=liczbaocentmp-2;
         do {
-          var ocenawyliczona=wyliczOcene(this.oceny,this.ocenyhipotetyczne,docelowasrednia,liczbaocentmp+2,this.wagainput.value).wyliczona;
+          var ocenawyliczona=wyliczOcene(this.zestawyOcen[this.aktywnyZestaw].oceny,this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne,docelowasrednia,liczbaocentmp+2,this.wagainput.value).wyliczona;
           var ocenawyznaczona = wyznaczOcene(this.ocenyinput,ocenawyliczona);
           var i = Date.now().toString(36) + Math.random().toString(36).substr(2);
-          this.ocenyhipotetyczne.push({ id: i, wartosclabel: ocenawyznaczona.label, wagalabel: this.wagainput.label, wartosc: ocenawyznaczona.value, waga: this.wagainput.value, czyLiczyc: true });
+          this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne.push({ id: i, wartosclabel: ocenawyznaczona.label, wagalabel: this.wagainput.label, wartosc: ocenawyznaczona.value, waga: this.wagainput.value, czyLiczyc: true });
         }while(--liczbaocentmp);
-        var brakuje=wyliczOcene(this.oceny,this.ocenyhipotetyczne,docelowasrednia,2,this.wagainput.value).brakuje;
+        var brakuje=wyliczOcene(this.zestawyOcen[this.aktywnyZestaw].oceny,this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne,docelowasrednia,2,this.wagainput.value).brakuje;
         var brakujaceoceny = dopasuj2oceny (this.ocenyinput,brakuje);
         var i = Date.now().toString(36) + Math.random().toString(36).substr(2);
-        this.ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena1.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena1.value, waga: this.wagainput.value, czyLiczyc: true });
+        this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena1.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena1.value, waga: this.wagainput.value, czyLiczyc: true });
         i = Date.now().toString(36) + Math.random().toString(36).substr(2);
-        this.ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena2.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena2.value, waga: this.wagainput.value, czyLiczyc: true });
+        this.zestawyOcen[this.aktywnyZestaw].ocenyhipotetyczne.push({ id: i, wartosclabel: brakujaceoceny.ocena2.label, wagalabel: this.wagainput.label, wartosc: brakujaceoceny.ocena2.value, waga: this.wagainput.value, czyLiczyc: true });
       }
 
       // var brakuje=21.43;
@@ -358,13 +394,10 @@ Vue.component('ocena', {
 Vue.component('srednia', {
   mixins: [mixin],
   template: `
-  <b-container style="margin-bottom:1em;">
-    <div style="display:table;">
-      <span style="font-size:1.2em; display:table-cell; vertical-align:middle;">Średnia: </span>
-      <span style="font-size:2em; display:table-cell; vertical-align: middle;">&nbsp;{{srednia(oceny)}}&nbsp;</span>    
-      <span v-if="ocenyhipotetyczne.length" style="border-radius: 5px; font-size:1.5em; display:table-cell; vertical-align: middle; color:white; background-color: black;padding: 0.2em;">{{sredniahip(oceny, ocenyhipotetyczne)}}</span>
-    </div>
-  </b-container>
+      <span style="0font-size:0.7em;"> 
+        <span style="border-radius: 5px; 0font-size:1.0em; color:black; background-color: white;padding: 0.2em;">{{srednia(zestawOcen.oceny)}}</span>
+        <span v-if="zestawOcen.ocenyhipotetyczne.length" style="border-radius: 5px; 0font-size:1.0em; color:white; background-color: black;padding: 0.2em;">{{sredniahip(zestawOcen.oceny, zestawOcen.ocenyhipotetyczne)}}</span>
+      </span>
     `,
   methods: {
     srednia: function (oceny) {
@@ -396,38 +429,45 @@ Vue.component('srednia', {
     },
   },
   props: {
-    oceny: Array,
-    ocenyhipotetyczne: Array
+    zestawOcen: Object,
+    zestawyOcen: Array
   },
-  created() { console.log("srednia: created"); },
-  mounted() { console.log("srednia: mounted"); },
-  beforeCreate() { console.log("srednia: beforeCreate"); },
-  beforeMount() { console.log("srednia: beforeMount"); },
-  beforeUpdate() { console.log("srednia: beforeUpdate "); },
+  //created() { console.log("srednia: created"); },
+  //mounted() { console.log("srednia: mounted"); },
+  //beforeCreate() { console.log("srednia: beforeCreate"); },
+  //beforeMount() { console.log("srednia: beforeMount"); },
+  //beforeUpdate() { console.log("srednia: beforeUpdate "); },
   updated() {
-    var ocenycookie = JSON.stringify(this.oceny);
-    this.setCookie('oceny', ocenycookie, 180);
-    ocenycookie = JSON.stringify(this.ocenyhipotetyczne);
-    this.setCookie('ocenyhipotetyczne', ocenycookie, 180);
+    // var ocenycookie = JSON.stringify(this.oceny);
+    // this.setCookie('oceny', ocenycookie, 180);
+    // ocenycookie = JSON.stringify(this.ocenyhipotetyczne);
+    // this.setCookie('ocenyhipotetyczne', ocenycookie, 180);
+    //var zestawycookie = JSON.stringify(this.zestawyOcen);
+    //this.setCookie('zestawy', zestawycookie, 180);
+    //this.setZestawy(this.zestawyOcen, this.aktywnyZestaw);
+    this.$emit('sredniaUpdated');
     // console.log("srednia: updated. ocenycookie: "+ocenycookie);
     // var ocenycookie2 = this.getCookie('oceny');
     // console.log("srednia: ocenycoockie: "+ocenycookie2);
   },
-  beforeDestroy() { console.log("srednia: beforeDestroy"); },
-  destroyed() { console.log("srednia: destroyed"); },
+  //beforeDestroy() { console.log("srednia: beforeDestroy"); },
+  //destroyed() { console.log("srednia: destroyed"); },
 })
 
 Vue.component('custom-main', {
   mixins: [mixin],
   data: function () {
     return {
-      oceny: [],
-      ocenyhipotetyczne: [],
-      tytul: "Kalkulator średniej ważonej ocen (grzejan@gmail.com).",
+      aktywnyZestaw: 0,      
+      tytul: "Kalkulator średniej ważonej ocen",
+      tytul1: " (grzejan",
+      tytul2: "@gma",
+      tytul3: "il.com)",
       czyCookieMsg: null,
-      settingsShow: false,
+      activeWindow: "main",
       jsonwagiinput: "",
       jsonocenyinput: "",
+      jsonzestawyinput: "",
       wagiinput: [],
       wagidefault: [
         { label: 'x1', value: 1 },
@@ -459,10 +499,11 @@ Vue.component('custom-main', {
         { label: "6", value: 6 },
         { label: "6+", value: 6.5 }
       ],
+      hudHeight: 250,
     }
   },
   template: `
-  <b-container v-if="settingsShow" >
+  <b-container v-if="activeWindow=='settings'" >
     <h4>Konfiguracja</h4>
     <b-form @submit="onSettingsSubmit" @reset="onSettingsReset" >    
     <b-form-row><b-col sm>
@@ -497,39 +538,95 @@ Vue.component('custom-main', {
       <b-button variant="outline-secondary" @click="onSettingsCancel()">Anuluj</b-button>      
     </b-form>
   </b-container>
+  <b-container v-else-if="activeWindow=='zestawy'" >
+    <h4>Oceny</h4>
+    <b-form @submit="onZestawySubmit" @reset="onZestawyReset" >    
+      <b-form-group id="zestawy-group">
+      <b-form-textarea
+        id="textarea-zestawyinput"        
+        rows="8"
+        max-rows="16"
+        v-model="jsonzestawyinput"
+        ></b-form-textarea>
+      </b-form-group>
+      <b-form-group>      
+      </b-form-group>
+      <b-button type="submit" variant="primary">OK</b-button>
+      <b-button variant="outline-secondary" @click="onZestawyCancel()">Anuluj</b-button>      
+    </b-form>
+  </b-container>
   <b-container v-else>
-    <b-row><b-col>
-      <b-container><small>{{tytul}}</small></b-container>
-    </b-col></b-row>
-    <b-row><b-col class="text-right"><b-button pill  variant="light" @click="settingsOn"><b-icon icon="gear"></b-icon></b-button></b-col></b-row>
-    <b-row><b-col>
-    <srednia :oceny="oceny" :ocenyhipotetyczne="ocenyhipotetyczne"></srednia>
-    </b-col></b-row>
-    <b-row><b-col>
-    <ocena-input :oceny="oceny" :ocenyhipotetyczne="ocenyhipotetyczne" :wagiinput="wagiinput" :ocenyinput="ocenyinput" ></ocena-input>        
-    </b-col></b-row>
-    <b-row><b-col>
-    <b-container>
-    <div v-if="(oceny.length>0)||(ocenyhipotetyczne.length>0)">
-    <ocena
-      v-for="ocena in oceny"
-      :key="ocena.id"
-      :ocena="ocena"
-      :oceny="oceny"
-      :rodzaj="'ocenafaktyczna'"
-    ></ocena>
-    <ocena
-      v-for="ocena in ocenyhipotetyczne"
-      :key="ocena.id"
-      :ocena="ocena"
-      :oceny="ocenyhipotetyczne"
-      :rodzaj="'ocenahipotetyczna'"
-    ></ocena>
-    </div>
-    <div v-else><p>Tu pojawią sie Twoje oceny 😊</p><p>Musisz wybrać wagę, a następnie kliknąć ocenę.</p></div>
+    <b-container style="background-color: white;">
+      <small>{{tytul}}{{tytul1}}{{tytul2}}{{tytul3}}</small>
+      <div class="text-right">
+        <b-button pill  variant="light" @click="zestawyOn"><b-icon icon="download"></b-icon></b-button>
+        <b-button pill  variant="light" @click="settingsOn"><b-icon icon="gear"></b-icon></b-button>        
+      </div>
     </b-container>
-    </b-col></b-row>
+    <b-container style="background-color: white; position: sticky; top: 0; z-index:999; ">    
+      <ocena-input :zestawyOcen="zestawy" :aktywnyZestaw="aktywnyZestaw" :wagiinput="wagiinput" :ocenyinput="ocenyinput"></ocena-input>    
+    </b-container> 
+
+    <!--<div>
+      <small>dummy</small>
+      <div class="text-right"><b-button pill  variant="light"><b-icon icon="gear"></b-icon></b-button></div>    
+      <ocena-input :zestawyOcen="zestawy" :aktywnyZestaw="aktywnyZestaw" :wagiinput="wagiinput" :ocenyinput="ocenyinput" ></ocena-input>
+    </div>-->
+
+    <div v-bind:style="{_paddingTop: hudHeight+'px'}" class="accordion" role="tablist">
+      <b-card no-body class="mb-1" v-for="(zestaw, index) in zestawy" :key="index">
+        <b-modal :id="zestaw.kod" :ref="zestaw.kod" title="Podaj nazwę przedmiotu" ok-only size="sm"  hide-footer hide-header centered>
+          <template #default="{ hide }">      
+            <form ref="form"> 
+              <b-form-group>  
+                <b-form-input id="nazwa-input" v-model="zestaw.nazwa" type="text" required autofocus></b-form-input>  
+              </b-form-group>
+              <b-row><b-col cols="auto" class="mr-auto">
+                <b-button v-if="zestawy.length>1" variant="danger" @click="deleteZestaw(zestaw.kod)">Usuń przedmiot</b-button>
+              </b-col><b-col cols="auto">
+                <b-button @click="hide()" variant="primary">OK</b-button>
+              </b-col></b-row>            
+            </form>      
+          </template>
+        </b-modal>
+        <b-card-header header-tag="header" class="p-1" role="tab">
+          <b-button block size="sm" v-b-toggle="zestaw.kod" variant="secondary"  @click="aktywnyZestaw=index">
+          <b-row align-v="center">
+            <b-col cols="auto">
+              <span style="font-size:1.2em;">{{zestaw.nazwa}}</span>&nbsp;
+              <b-icon class="przycisk" @click.stop="editZestaw(zestaw.nazwa)" v-b-modal="zestaw.kod" icon="pencil"></b-icon>
+            </b-col>          
+            <b-col cols="auto" class="ml-auto" style="font-size:1.1em;"><srednia :zestawOcen="zestaw" :zestawyOcen="zestawy" @sredniaUpdated="onSredniaUpdated"></srednia></b-col> 
+          </b-row>
+          </b-button>
+        </b-card-header>
+        <b-collapse :id="zestaw.kod" v-model="zestaw.visible" accordion="my-accordion" role="tabpanel">
+          <b-container>
+            <div v-if="(zestaw.oceny.length>0)||(zestaw.ocenyhipotetyczne.length>0)">    
+            <ocena
+              v-for="ocena in zestaw.oceny"
+              :key="ocena.id"
+              :ocena="ocena"
+              :oceny="zestaw.oceny"
+              :rodzaj="'ocenafaktyczna'"
+            ></ocena>
+            <ocena
+              v-for="ocena in zestaw.ocenyhipotetyczne"
+              :key="ocena.id"
+              :ocena="ocena"
+              :oceny="zestaw.ocenyhipotetyczne"
+              :rodzaj="'ocenahipotetyczna'"
+            ></ocena>
+            </div>
+            <div v-else><p>Tu pojawią sie Twoje oceny 😊</p><p>Musisz wybrać wagę, a następnie kliknąć ocenę.</p></div>
+          </b-container>
+        </b-collapse>
+      </b-card>      
+    </div>
+    <b-button size="sm" variant="light" @click="addZestaw">Dodaj przedmiot</b-button>
+    
     <div id="cookiemsg" v-if="czyCookieMsg"><b-container><small><p>Ta aplikacja zapisuje ciasteczka (<b>cookies</b>) w  Twojej przeglądarce, żeby zachować swoje ustawienia oraz wprowadzone przez Ciebie oceny.</p><p>Żadne dane nie są wysyłane poza przeglądarkę.</p></small><b-button size="sm" variant="primary" @click="setCookieMsg()">OK</b-button></b-container></div>
+
   </b-container> 
   `,
   computed: {
@@ -542,17 +639,37 @@ Vue.component('custom-main', {
     }
   },
   methods: {
+    editZestaw: function(entry) {
+      //console.log('edit: '+entry)
+    },
+    setActiveZestaw: function (kod) {
+      //console.log(kod);
+      this.aktywnyZestaw=this.zestawy.findIndex(function(element){return element.kod==kod});      
+    },
+    deleteZestaw: function (kod) {
+      this.zestawy.splice(this.zestawy.findIndex(function(element){return element.kod==kod}), 1);
+      this.$root.$emit('bv::hide::modal', kod, '#btnHide')
+      this.setZestawyCookie(this.zestawy, -1);      
+    },
+    addZestaw: function () {
+      //console.log('zestaw-'+this.generateId());
+      this.zestawy.push({kod:'zestaw-'+this.generateId(), nazwa: 'Nazwa przedmiotu', visible:true, oceny: [], ocenyhipotetyczne: []});
+      this.aktywnyZestaw=this.zestawy.length-1;
+      //var zestawycookie = JSON.stringify(this.zestawy);
+      //this.setCookie('zestawy', zestawycookie, 180);
+      this.setZestawyCookie(this.zestawy, -1); 
+    },
     setCookieMsg: function () {
       this.setCookie('cookiemsg', 'Ta aplikacja zapisuje ciasteczka (cookies) w  Twojej przeglądarce, żeby zachować swoje ustawienia oraz wprowadzone przez Ciebie oceny. Żadne dane nie są wysyłane poza przeglądarkę.', 180);
       this.czyCookieMsg = false;
     },
     settingsOn: function () {
-      this.settingsShow = true;
+      this.activeWindow = 'settings';
       this.jsonwagiinput = JSON.stringify(this.wagiinput, null, 2);
       this.jsonocenyinput = JSON.stringify(this.ocenyinput, null, 2);
     },
     onSettingsSubmit: function () {
-      this.settingsShow = false;
+      this.activeWindow = 'main';
       this.wagiinput = JSON.parse(this.jsonwagiinput);
       this.setCookie('wagiinput', JSON.stringify(this.wagiinput), 180);
       this.ocenyinput = JSON.parse(this.jsonocenyinput);
@@ -560,29 +677,53 @@ Vue.component('custom-main', {
     },
     onSettingsReset: function () { },
     onSettingsCancel: function () {
-      this.settingsShow = false;
+      this.activeWindow = 'main';
     },
     onSettingsDefaultWagi: function () {
       this.jsonwagiinput = JSON.stringify(this.wagidefault, null, 2);
     },
     onSettingsDefaultOceny: function () {
       this.jsonocenyinput = JSON.stringify(this.ocenydefault, null, 2);
-    }
+    },
+    zestawyOn: function () {
+      this.activeWindow = 'zestawy';
+      this.jsonzestawyinput = JSON.stringify(this.zestawy, null, 2);      
+    },
+    onZestawySubmit: function () {
+      this.activeWindow = 'main';
+      this.zestawy = JSON.parse(this.jsonzestawyinput);
+      for (x in this.zestawy) {
+        this.setZestawyCookie(this.zestawy, x);
+      };  
+    },
+    onZestawyReset: function () { },
+    onZestawyCancel: function () {
+      this.activeWindow = 'main';
+    },
+    onSredniaUpdated: function () {
+      this.setZestawyCookie(this.zestawy, this.aktywnyZestaw);
+    },
   },
-  created() { console.log("main: created " + new Date().toLocaleString()); },
+  //created() { console.log("main: created " + new Date().toLocaleString()); },
   mounted() {
-    console.log("main: mounted " + new Date().toLocaleString());
+    // this.hudHeight = this.$refs.hud.clientHeight;
+    // console.log("height: "+this.hudHeight)
+    //console.log("main: mounted " + new Date().toLocaleString());
     // this.tytul = 'Kalkulator średniej ważonej ocen (grzejan@gmail.com).';
-    var ocenycookie = this.getCookie('oceny');
-    // console.log("main: ocenycoockie: " + ocenycookie);
-    if (ocenycookie) {
-      this.oceny = JSON.parse(ocenycookie);
-    }
-    var ocenyhipotetycznecookie = this.getCookie('ocenyhipotetyczne');
-    // console.log("main: ocenyhipotetycznecoockie: " + ocenyhipotetycznecookie);
-    if (ocenyhipotetycznecookie) {
-      this.ocenyhipotetyczne = JSON.parse(ocenyhipotetycznecookie);
-    }
+    // var ocenycookie = this.getCookie('oceny');
+    // // console.log("main: ocenycoockie: " + ocenycookie);
+    // if (ocenycookie) {
+    //   this.oceny = JSON.parse(ocenycookie);
+    // }
+    // var ocenyhipotetycznecookie = this.getCookie('ocenyhipotetyczne');
+    // // console.log("main: ocenyhipotetycznecoockie: " + ocenyhipotetycznecookie);
+    // if (ocenyhipotetycznecookie) {
+    //   this.ocenyhipotetyczne = JSON.parse(ocenyhipotetycznecookie);
+    // }
+    // var zestawycookie = this.getCookie('zestawy');
+    // if (zestawycookie) {
+    //   this.zestawy = JSON.parse(zestawycookie);
+    // }    
     if (this.getCookie('cookiemsg')) {
       this.czyCookieMsg = false;
     } else {
@@ -601,6 +742,8 @@ Vue.component('custom-main', {
     } else {
       this.ocenyinput = this.ocenydefault;
     }
+    this.getZestawy();
+    this.aktywnyZestaw = this.zestawy.findIndex(function(item){ return item.visible == true});
 
     // testy
     var brakuje=21.43;
@@ -609,7 +752,7 @@ Vue.component('custom-main', {
     var brakujex1 = brakuje/wagainput;
 
     var brakujaceoceny = dopasuj2oceny (this.ocenyinput,brakujex1);
-    console.log("\n"+JSON.stringify(brakujaceoceny));
+    //console.log("\n"+JSON.stringify(brakujaceoceny));
 
     function dopasuj2oceny(ocenyinput,brakuje) {
       var ocenyinputtmp = ocenyinput.map(ocenyinputtmpmap);
@@ -618,7 +761,7 @@ Vue.component('custom-main', {
         if (a.diff==b.diff) {return (a.ocenydiff<b.ocenydiff)?-1:1;}
         return (a.diff<b.diff)?1:-1; 
       });
-      console.log(JSON.stringify(ocenyinputtmp));
+      //console.log(JSON.stringify(ocenyinputtmp));
       //console.log("\n"+JSON.stringify(ocenyinputtmp[0]));
       return ocenyinputtmp[0];
 
@@ -641,14 +784,12 @@ Vue.component('custom-main', {
     }
 
   },
-  beforeCreate() { console.log("main: beforeCreate " + new Date().toLocaleString()); },
-  beforeMount() { console.log("main: beforeMount " + new Date().toLocaleString()); },
-  beforeUpdate() { console.log("main: beforeUpdate " + new Date().toLocaleString()); },
-  updated() {
-    console.log("main: updated " + new Date().toLocaleString());
-  },
-  beforeDestroy() { console.log("main: beforeDestroy " + new Date().toLocaleString()); },
-  destroyed() { console.log("main: destroyed " + new Date().toLocaleString()); }
+  //beforeCreate() { //console.log("main: beforeCreate " + new Date().toLocaleString());},
+  //beforeMount() { //console.log("main: beforeMount " + new Date().toLocaleString()); },
+  //beforeUpdate() { //console.log("main: beforeUpdate " + new Date().toLocaleString()); },
+  //updated() {console.log("main: updated " + new Date().toLocaleString());},
+  //beforeDestroy() { //console.log("main: beforeDestroy " + new Date().toLocaleString()); },
+  //destroyed() { //console.log("main: destroyed " + new Date().toLocaleString()); },
 })
 
 let app = new Vue({
