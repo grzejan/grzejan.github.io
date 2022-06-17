@@ -1,0 +1,28 @@
+Privacy policy
+*Last updated: June, 2022
+
+Information collection and use
+
+I, Grzegorz Jankowski, hereby declare, that Floating Events app do not collect or store any private or personal informations about you. 
+To resolve app problems, Floating Events app may save event log of moving events. The log is saved within app and stays there until you decide to download it.
+Events log contains:
+- date and time of last searching of floating events,
+- date and time of next searching of floating events,
+- moved events (before and after moving): id, title, description, start date, end date, all-day events marker, floating event tag.
+
+If you have any concerns or further questions about this privacy policy, please read permissions usage explanation (below) or email me (grzejan@gmail.com). 
+I will do my best to provide you more informations and answer all your questions.
+
+By using application you agree with this privacy policy. If you do not agree, please uninstall it. 
+
+Permissions used within app:
+
+	android.permission.WAKE_LOCK, android.permission.RECEIVE_BOOT_COMPLETED
+	This permission is used to automatically restart floating events moving feature after device reboot.
+
+	android.permission.READ_CALENDAR, android.permission.WRITE_CALENDAR
+	This permission is used to search calendars to find floating events and moving them.
+
+	android.permission.WRITE_EXTERNAL_STORAGE android:maxSdkVersion="18"
+	This permission is used to save application log to external device (when activated in app settings).
+
